@@ -157,12 +157,12 @@ def train(model,
             # The saved model name will include the current epoch.
             filepath=checkpoints_path + "/mymodel_{epoch}",
             save_best_only=True,  # Only save a model if `val_loss` has improved.
-            monitor="val_loss",
+            monitor="loss",
             verbose=1,
         ),
         EarlyStopping(
             # Stop training when `val_loss` is no longer improving
-            monitor="val_loss",
+            monitor="loss",
             # "no longer improving" being defined as "no better than 1e-2 less"
             min_delta=1e-2,
             # "no longer improving" being further defined as "for at least 2 epochs"
