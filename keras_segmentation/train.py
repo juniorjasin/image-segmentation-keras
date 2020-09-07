@@ -3,7 +3,7 @@ from .data_utils.data_loader import image_segmentation_generator, \
     verify_segmentation_dataset
 import glob
 import six
-from keras.callbacks import Callback
+from keras.callbacks import Callback, TensorBoard, EarlyStopping, ModelCheckpoint
 
 
 def find_latest_checkpoint(checkpoints_path, fail_safe=True):
@@ -149,7 +149,31 @@ def train(model,
             n_classes, input_height, input_width, output_height, output_width)
 
     callbacks = [
-        CheckpointsCallback(checkpoints_path)
+        ModelCheckpoint(
+            # Path where to save the model
+            # The two parameters below mean that we will overwrite
+            # the current checkpoint if and only if
+            # the `val_loss` score has improved.
+            # The saved model name will include the current epoch.
+            filepath=checkpoints_path + "/mymodel_{epoch}",
+            save_best_only=True,  # Only save a model if `val_loss` has improved.
+            monitor="val_loss",
+            verbose=1,
+        ),
+        EarlyStopping(
+            # Stop training when `val_loss` is no longer improving
+            monitor="val_loss",
+            # "no longer improving" being defined as "no better than 1e-2 less"
+            min_delta=1e-2,
+            # "no longer improving" being further defined as "for at least 2 epochs"
+            patience=3,
+            verbose=1,
+        ),
+        TensorBoard(
+            log_dir='logs',
+            histogram_freq=0,
+            write_graph=True,
+            embeddings_freq=0)
     ]
 
     if not validate:
