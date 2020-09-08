@@ -70,7 +70,9 @@ def train(model,
           optimizer_name='adadelta',
           do_augment=False,
           augmentation_name="aug_all",
-          monitor="loss"):
+          monitor="loss",
+          patience=5,
+          min_delta=1e-4):
 
     from .models.all_models import model_from_name
     # check if user gives model name instead of the model object
@@ -165,9 +167,9 @@ def train(model,
             # Stop training when `val_loss` is no longer improving
             monitor=monitor,
             # "no longer improving" being defined as "no better than 1e-2 less"
-            min_delta=1e-2,
+            min_delta=min_delta,
             # "no longer improving" being further defined as "for at least 2 epochs"
-            patience=3,
+            patience=patience,
             verbose=1,
         ),
         TensorBoard(
