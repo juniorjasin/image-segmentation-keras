@@ -69,7 +69,8 @@ def train(model,
           ignore_zero_class=False,
           optimizer_name='adadelta',
           do_augment=False,
-          augmentation_name="aug_all"):
+          augmentation_name="aug_all",
+          monitor="loss"):
 
     from .models.all_models import model_from_name
     # check if user gives model name instead of the model object
@@ -155,7 +156,7 @@ def train(model,
             # the current checkpoint if and only if
             # the `val_loss` score has improved.
             # The saved model name will include the current epoch.
-            filepath=checkpoints_path + "/mymodel_{epoch}",
+            filepath=checkpoints_path + "/mymodel_{epoch}.h5",
             save_best_only=True,  # Only save a model if `val_loss` has improved.
             monitor="loss",
             verbose=1,
