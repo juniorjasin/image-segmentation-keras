@@ -1,8 +1,6 @@
 from datetime import datetime
 import json
 
-from keras.optimizers import Adam
-
 from .data_utils.data_loader import image_segmentation_generator, \
     verify_segmentation_dataset
 import glob
@@ -81,7 +79,10 @@ def train(model,
           patience=5,
           min_delta=1e-2,
           metrics=[],
-          logdir_name=pathlib.Path("logs") / f'train-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
+          logdir_name=pathlib.Path("logs") / f'train-{datetime.now().strftime("%Y%m%d-%H%M%S")}',
+          loss=keras.losses.BinaryCrossentropy(from_logits=True),
+          optimizer=keras.optimizers.Adam(keras.optimizers.schedules.InverseTimeDecay(0.001, decay_steps=5,
+                                                                                      decay_rate=1, staircase=False)),
           ):
 
     from .models.all_models import model_from_name
@@ -107,16 +108,11 @@ def train(model,
 
     if optimizer_name is not None:
 
-        if ignore_zero_class:
-            loss_k = masked_categorical_crossentropy
-        else:
-            loss_k = 'categorical_crossentropy'
-
         if not metrics:
             metrics = ['accuracy']
 
-        model.compile(loss=loss_k,
-                      optimizer=optimizer_name,
+        model.compile(loss=loss,
+                      optimizer=optimizer,
                       metrics=metrics)
 
     if checkpoints_path is not None:
