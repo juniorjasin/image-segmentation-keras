@@ -4,6 +4,7 @@ from .data_utils.data_loader import image_segmentation_generator, \
 import glob
 import six
 from keras.callbacks import Callback, TensorBoard, EarlyStopping, ModelCheckpoint
+import keras
 
 
 def find_latest_checkpoint(checkpoints_path, fail_safe=True):
@@ -72,7 +73,8 @@ def train(model,
           augmentation_name="aug_all",
           monitor="loss",
           patience=5,
-          min_delta=1e-4):
+          min_delta=1e-4,
+          metrics=[]):
 
     from .models.all_models import model_from_name
     # check if user gives model name instead of the model object
@@ -102,9 +104,12 @@ def train(model,
         else:
             loss_k = 'categorical_crossentropy'
 
+        if not metrics:
+            metrics = ['accuracy']
+
         model.compile(loss=loss_k,
                       optimizer=optimizer_name,
-                      metrics=['accuracy'])
+                      metrics=metrics)
 
     if checkpoints_path is not None:
         with open(checkpoints_path+"_config.json", "w") as f:
