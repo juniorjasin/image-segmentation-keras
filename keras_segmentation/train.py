@@ -1,10 +1,16 @@
+from datetime import datetime
 import json
+
+from keras.optimizers import Adam
+
 from .data_utils.data_loader import image_segmentation_generator, \
     verify_segmentation_dataset
 import glob
 import six
 from keras.callbacks import Callback, TensorBoard, EarlyStopping, ModelCheckpoint
 import keras
+import pathlib
+
 
 
 def find_latest_checkpoint(checkpoints_path, fail_safe=True):
@@ -73,8 +79,10 @@ def train(model,
           augmentation_name="aug_all",
           monitor="loss",
           patience=5,
-          min_delta=1e-4,
-          metrics=[]):
+          min_delta=1e-2,
+          metrics=[],
+          logdir_name=pathlib.Path("logs") / f'train-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
+          ):
 
     from .models.all_models import model_from_name
     # check if user gives model name instead of the model object
@@ -178,19 +186,18 @@ def train(model,
             verbose=1,
         ),
         TensorBoard(
-            log_dir='logs',
-            histogram_freq=0,
-            write_graph=True,
-            embeddings_freq=0)
+            log_dir=logdir_name)
     ]
 
     if not validate:
-        model.fit_generator(train_gen, steps_per_epoch,
+        history = model.fit_generator(train_gen, steps_per_epoch,
                             epochs=epochs, callbacks=callbacks)
     else:
-        model.fit_generator(train_gen,
+        history = model.fit_generator(train_gen,
                             steps_per_epoch,
                             validation_data=val_gen,
                             validation_steps=val_steps_per_epoch,
                             epochs=epochs, callbacks=callbacks,
                             use_multiprocessing=gen_use_multiprocessing)
+
+    return history
