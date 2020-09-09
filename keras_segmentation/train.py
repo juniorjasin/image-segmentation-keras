@@ -80,7 +80,7 @@ def train(model,
           min_delta=1e-2,
           metrics=[],
           logdir_name=pathlib.Path("logs") / f'train-{datetime.now().strftime("%Y%m%d-%H%M%S")}',
-          loss=keras.losses.BinaryCrossentropy(from_logits=True),
+          loss=keras.losses.CategoricalCrossentropy(),
           optimizer=keras.optimizers.Adam(keras.optimizers.schedules.InverseTimeDecay(0.001, decay_steps=5,
                                                                                       decay_rate=1, staircase=False)),
           ):
